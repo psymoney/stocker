@@ -1,7 +1,9 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from .views import *
+from rest_framework.request import Request
 
 urlpatterns = [
-    path('', views.IndexView.as_view()),
-    path('internal/', views.ErrorView.as_view()),
+    path('', views.CompView.as_view()),
+    #    path('financials/', views.ExternalAPIRequestView.as_view()),
 ]
