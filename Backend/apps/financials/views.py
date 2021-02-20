@@ -24,7 +24,7 @@ class CompanyLookupView(APIView):
             report_code = 11011
 
             # Request financial data from external API
-            data_response = requests.get(URI, params={
+            response = requests.get(URI, params={
                 'crtfc_key': API_KEY,
                 'corp_code': corporate_code,
                 'bsns_year': business_year,
