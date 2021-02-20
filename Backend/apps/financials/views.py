@@ -31,12 +31,7 @@ class CompanyLookupView(APIView):
                 'reprt_code': report_code,
                 'fs_div': consolidation_key})
 
-            # TODO(SY): add status checking function
-            financial_data = json.loads(data_response.text)
-
-            print(json.dumps(financial_data, indent="\t"))
-
-            return financial_data
+            return data_response.json()
 
         # TODO(SY): implement get_financial_reports method
         def get_financial_reports(financials):
