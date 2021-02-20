@@ -10,21 +10,21 @@ class CompanyLookupView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        corporateName = request.query_params["corporateName"]
-        consolidationKey = request.query_params["consolidationKey"]
-        if consolidationKey == "True":
-            consolidationKey = "CFS"
+        corporate_name = request.query_params["corporateName"]
+        consolidation_key = request.query_params["consolidationKey"]
+        if consolidation_key == "True":
+            consolidation_key = "CFS"
         else:
-            consolidationKey = "OFS"
+            consolidation_key = "OFS"
 
-        corporate_code = get_corporate_code(corporateName)
+        corporate_code = get_corporate_code(corporate_name)
 
         financials = get_financials()
         for i in range(1, 100):
             print(financials[i])
 
         print(
-            f"corporateName = {corporateName} '\n'consolidationKey = {consolidationKey}")
+            f"corporate_name = {corporate_name} '\n'consolidation_key = {consolidation_key}")
 
         def get_corporate_code(name):
             # TODO(SY): uncommnet below codes after implementing get_corporate_code method
@@ -32,7 +32,7 @@ class CompanyLookupView(APIView):
             # if name in corpList:
             return "00126380"
 
-        return Response(data={"corporateName": corporateName, "consolidationKey": consolidationKey}, status=status.HTTP_200_OK)
+        return Response(data={"corporate_name": corporate_name, "consolidation_key": consolidation_key}, status=status.HTTP_200_OK)
 
         def get_financials():
             URI = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json?"
@@ -41,7 +41,7 @@ class CompanyLookupView(APIView):
             report_code = 11011
             parameter_text = "crtfc_key=" + API_key + "&corp_code=" + corporate_code + \
                 "&bsns_year=" + str(business_year) + "&reprt_code=" + \
-                str(report_code) + "&fs_div=" + consolidationKey
+                str(report_code) + "&fs_div=" + consolidation_key
 
             # TODO(SY): request financial data to opendart API
             data_request = URI + parameter_text
