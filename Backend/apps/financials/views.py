@@ -5,8 +5,6 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 
-# TODO(SY): remove index & error view after implementing financials API
-
 
 class CompView(APIView):
     renderer_classes = [JSONRenderer]
