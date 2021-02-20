@@ -1,7 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('', views.IndexView.as_view()),
-    path('internal/', views.ErrorView.as_view()),
+    path('', views.CompanyLookupView.as_view()),
+    #    path('financials/', views.ExternalAPIRequestView.as_view()),
 ]
