@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 import requests
+import json
 
 
 class CompanyLookupView(APIView):
@@ -18,19 +19,22 @@ class CompanyLookupView(APIView):
 
         def get_financials():
             URI = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json"
-            API_key = "d3f02b844b4afaa11b10e188bc7a092fc1a63f25"
+            API_KEY = "d3f02b844b4afaa11b10e188bc7a092fc1a63f25"
             business_year = 2019
             report_code = 11011
-            API_parameters = {
-                'crtfc_key': API_key,
+
+            # Request financial data from external API
+            data_response = requests.get(URI, params={
+                'crtfc_key': API_KEY,
                 'corp_code': corporate_code,
                 'bsns_year': business_year,
                 'reprt_code': report_code,
-                'fs_div': consolidation_key
-            }
-            # Request financial data from external API
-            data_request = requests.get(URI, params=API_parameters)
-            financial_data = data_request.text
+                'fs_div': consolidation_key})
+
+            # TODO(SY): add status checking function
+            financial_data = json.loads(data_response.text)
+
+            print(json.dumps(financial_data, indent="\t"))
 
             return financial_data
 
