@@ -4,12 +4,18 @@ import os.path
 
 def Initilize_Db():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    f = open(BASE_DIR + '\corpcode.json', 'r', encoding='utf-8')
+    f = open(BASE_DIR + '/corpcode.json', 'r', encoding='utf-8')
     corporations = json.load(f)
     corporations = corporations['result']['list']
-    print(corporations[0])
     corps = []
-    for corp in corporations:
+    for corp in corporations[:10]:
+        # print(type(corp['corp_code']), type(corp['corp_name']),type(corp['stock_code']) )
+        if type(corp['corp_code']) != int:
+            continue
+        if type(corp['corp_name']) != str:
+            continue
+        if type(corp['stock_code']) != str:
+            continue
         temp = {
             "model": "financials.corporation",
             "fields": {
@@ -20,10 +26,8 @@ def Initilize_Db():
         }
 
         corps.append(temp)
-
-    print(corps[0])
-    with open(BASE_DIR + "\corp.json", "w") as json_file:
-        json.dump(corps, json_file)
+    with open(BASE_DIR + "/corp.json", "w", encoding='utf-8') as json_file:
+        json_file.write(json.dumps(corps, ensure_ascii=False, indent=4))
 
 
 Initilize_Db()

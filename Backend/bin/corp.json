@@ -1,0 +1,82 @@
+[
+    {
+        "model": "financials.corporation",
+        "fields": {
+            "code": 434003,
+            "name": "다코",
+            "ticker": ""
+        }
+    },
+    {
+        "model": "financials.corporation",
+        "fields": {
+            "code": 434456,
+            "name": "일산약품",
+            "ticker": ""
+        }
+    },
+    {
+        "model": "financials.corporation",
+        "fields": {
+            "code": 430964,
+            "name": "굿앤엘에스",
+            "ticker": ""
+        }
+    },
+    {
+        "model": "financials.corporation",
+        "fields": {
+            "code": 432403,
+            "name": "한라판지",
+            "ticker": ""
+        }
+    },
+    {
+        "model": "financials.corporation",
+        "fields": {
+            "code": 388953,
+            "name": "크레디피아제이십오차유동화전문회사",
+            "ticker": ""
+        }
+    },
+    {
+        "model": "financials.corporation",
+        "fields": {
+            "code": 179984,
+            "name": "연방건설산업",
+            "ticker": ""
+        }
+    },
+    {
+        "model": "financials.corporation",
+        "fields": {
+            "code": 420143,
+            "name": "브룩스피알아이오토메이션잉크",
+            "ticker": ""
+        }
+    },
+    {
+        "model": "financials.corporation",
+        "fields": {
+            "code": 401111,
+            "name": "매경아이비아이",
+            "ticker": ""
+        }
+    },
+    {
+        "model": "financials.corporation",
+        "fields": {
+            "code": 435534,
+            "name": "캐드뱅크",
+            "ticker": ""
+        }
+    },
+    {
+        "model": "financials.corporation",
+        "fields": {
+            "code": 430186,
+            "name": "엠와이오피삼차유동화전문유한회사",
+            "ticker": ""
+        }
+    }
+]
