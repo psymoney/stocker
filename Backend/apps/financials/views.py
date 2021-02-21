@@ -52,7 +52,7 @@ class CompanyLookupView(APIView):
         def get_corporate_code(name):
             return "00126380"
 
-        def get_financials():
+        def get_financial_statements():
             URI = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json"
             API_KEY = "d3f02b844b4afaa11b10e188bc7a092fc1a63f25"
             business_year = 2019
@@ -69,7 +69,7 @@ class CompanyLookupView(APIView):
             return response.json()
 
         # TODO(SY): improve method
-        def get_financial_report(financials):
+        def get_financial_reports(financial_statements):
             financial_reports = []
 
             for report in financials['list']:
@@ -112,8 +112,7 @@ class CompanyLookupView(APIView):
             consolidation_key = "OFS"
 
         corporate_code = get_corporate_code(corporate_name)
-        financials = get_financials()
-        financial_reports = get_financial_report(financials)
+        financial_statements = get_financial_statements()
+        financial_reports = get_financial_reports(financial_statements)
 
-        # TODO(SY): fix Response after implementing get method
         return Response(data={"reports": financial_reports}, status=status.HTTP_200_OK)
