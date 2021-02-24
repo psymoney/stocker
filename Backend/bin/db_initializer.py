@@ -8,13 +8,10 @@ def Initilize_Db():
     corporations = json.load(f)
     corporations = corporations['result']['list']
     corps = []
-    for corp in corporations[:10]:
-        # print(type(corp['corp_code']), type(corp['corp_name']),type(corp['stock_code']) )
-        if type(corp['corp_code']) != int:
+    for corp in corporations:
+        if not corp:
             continue
-        if type(corp['corp_name']) != str:
-            continue
-        if type(corp['stock_code']) != str:
+        if (corp['stock_code']) == None:
             continue
         temp = {
             "model": "financials.corporation",

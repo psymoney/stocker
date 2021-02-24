@@ -1,9 +1,12 @@
+# -*-coding:utf-8
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
+from .models import Corporation
+import psycopg2
 import requests
 import json
 
@@ -47,10 +50,36 @@ class CompanyLookupView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-
         # TODO(SY): implement get_corporate_code method
-        def get_corporate_code(name):
-            return "00126380"
+        def get_corporate_code(key):
+
+            # TODO(SY): add search by name method
+            def search_by_name():
+                try:
+                    search_result = Corporation.objects.get(name=key)
+                except:
+                    print("There is no matching query")
+                    search_result = "00126380"
+                print(search_result)
+                return search_result
+
+            # TODO(SY): add search by ticker method
+            def search_by_ticker():
+                try:
+                    search_result = Corporation.objects.get(ticker=key)
+                except:
+                    print("There is no matching query")
+                    search_result = "00126380"
+                print(search_result)
+                return search_result
+
+            if len(key) == 6:
+                for char in key:
+                    if char not in set(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']):
+                        return search_by_name()
+                return search_by_ticker()
+            else:
+                return search_by_name()
 
         def get_financial_statements():
             URI = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json"
@@ -68,42 +97,92 @@ class CompanyLookupView(APIView):
 
             return response.json()
 
-        # TODO(SY): improve method
         def get_financial_reports(financial_statements):
             financial_reports = []
+            revenue = None
+            gross_profit = None
+            operating_profit = None
+            net_income = None
+            total_equity = None
 
-            for report in financials['list']:
+            def get_report(financial_statements):
+                report = Report(financial_statements['sj_nm'], financial_statements['account_nm'], financial_statements['thstrm_nm'], financial_statements['thstrm_amount'],
+                                financial_statements['frmtrm_nm'], financial_statements['frmtrm_amount'], financial_statements['bfefrmtrm_nm'], financial_statements['bfefrmtrm_amount'])
+                return report
+
+            def get_growth_report(financial_statements, account_name):
+                current_year_growth = str(float(financial_statements['thstrm_amount']) /
+                                          float(financial_statements['frmtrm_amount']) - 1)
+                prior_year_growth = str(float(financial_statements['frmtrm_amount']) /
+                                        float(financial_statements['bfefrmtrm_amount']) - 1)
+                report = Report(financial_statements['sj_nm'], account_name, financial_statements['thstrm_nm'], current_year_growth,
+                                financial_statements['frmtrm_nm'], prior_year_growth, financial_statements['bfefrmtrm_nm'], '-')
+                return report
+
+            def get_ratio_report(numerator, denominator, account_name):
+                current_period_value = str(float(
+                    numerator['thstrm_amount']) / float(denominator['thstrm_amount']))
+                prior_period_value = str(float(
+                    numerator['frmtrm_amount']) / float(denominator['frmtrm_amount']))
+                past_prior_period_value = str(float(
+                    numerator['bfefrmtrm_amount']) / float(denominator['bfefrmtrm_amount']))
+                report = Report(numerator['sj_nm'], account_name, numerator['thstrm_nm'], current_period_value,
+                                numerator['frmtrm_nm'], prior_period_value, numerator['bfefrmtrm_nm'], past_prior_period_value)
+                return report
+
+            for report in financial_statements['list']:
                 account_name = report['account_nm']
                 if account_name in set(["수익(매출액)", "수익", "매출액", "매출총액"]):
-                    revenue = Report(report['sj_nm'], report['account_nm'], report['thstrm_nm'], report['thstrm_amount'],
-                                     report['frmtrm_nm'], report['frmtrm_amount'], report['bfefrmtrm_nm'], report['bfefrmtrm_amount'])
-                    current_year_growth = float(report['thstrm_amount']) / \
-                        float(report['frmtrm_amount']) - 1
-                    prior_year_growth = float(report['frmtrm_amount']) / \
-                        float(report['bfefrmtrm_amount']) - 1
-                    revenue_growth = Report(report['sj_nm'], "매출성장률", report['thstrm_nm'], current_year_growth,
-                                            report['frmtrm_nm'], prior_year_growth, report['bfefrmtrm_nm'], '-')
+                    revenue = get_report(report)
+                    financial_reports.append(revenue.to_JSON_response())
+                    revenue = report
+                    # Add revenue growth report
+                    revenue_growth = get_growth_report(report, "매출성장률")
                     financial_reports.append(revenue_growth.to_JSON_response())
                 elif account_name in set(["매출총이익", "매출총수익", "매출총익"]):
-                    gross_profit = Report(report['sj_nm'], report['account_nm'], report['thstrm_nm'], report['thstrm_amount'],
-                                          report['frmtrm_nm'], report['frmtrm_amount'], report['bfefrmtrm_nm'], report['bfefrmtrm_amount'])
+                    gross_profit = get_report(report)
                     financial_reports.append(gross_profit.to_JSON_response())
+                    gross_profit = report
                 elif account_name in set(["영업이익(손실)", "영업이익"]):
-                    operating_profit = Report(report['sj_nm'], report['account_nm'], report['thstrm_nm'], report['thstrm_amount'],
-                                              report['frmtrm_nm'], report['frmtrm_amount'], report['bfefrmtrm_nm'], report['bfefrmtrm_amount'])
+                    operating_profit = get_report(report)
                     financial_reports.append(
                         operating_profit.to_JSON_response())
+                    operating_profit = report
                 elif account_name in set(["당기순이익(손실)", "당기순이익"]) and report['sj_nm'] == "손익계산서":
-                    net_income = Report(report['sj_nm'], report['account_nm'], report['thstrm_nm'], report['thstrm_amount'],
-                                        report['frmtrm_nm'], report['frmtrm_amount'], report['bfefrmtrm_nm'], report['bfefrmtrm_amount'])
+                    net_income = get_report(report)
                     financial_reports.append(net_income.to_JSON_response())
+                    net_income = report
                 elif account_name == "자본총계" and report['sj_nm'] == "재무상태표":
-                    total_equity = Report(report['sj_nm'], report['account_nm'], report['thstrm_nm'], report['thstrm_amount'],
-                                          report['frmtrm_nm'], report['frmtrm_amount'], report['bfefrmtrm_nm'], report['bfefrmtrm_amount'])
+                    total_equity = get_report(report)
                     financial_reports.append(total_equity.to_JSON_response())
+                    total_equity = report
+
+            # Add gross profit margin
+            if gross_profit and revenue:
+                gross_profit_margin = get_ratio_report(
+                    gross_profit, revenue, "매출총이익률")
+                financial_reports.append(
+                    gross_profit_margin.to_JSON_response())
+            # Add operating profit margin
+            if operating_profit and revenue:
+                operating_profit_margin = get_ratio_report(
+                    operating_profit, revenue, "영업이익률")
+                financial_reports.append(
+                    operating_profit_margin.to_JSON_response())
+            # Add net income margin
+            if net_income and revenue:
+                net_income_margin = get_ratio_report(
+                    net_income, revenue, "당기순이익률")
+                financial_reports.append(net_income_margin.to_JSON_response())
+            # Add ROE
+            if net_income and total_equity:
+                return_on_equity = get_ratio_report(
+                    net_income, total_equity, "ROE")
+                financial_reports.append(return_on_equity.to_JSON_response())
 
             return financial_reports
 
+        # TODO(SY): change variable name after making get_corporate_code(e.g. corporate_name --> search_key)
         corporate_name = request.query_params["corporateName"]
         consolidation_key = request.query_params["consolidationKey"]
         if consolidation_key == "True":
