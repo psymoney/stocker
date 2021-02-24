@@ -1,4 +1,3 @@
-# -*-coding:utf-8
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.request import Request
@@ -50,28 +49,22 @@ class CompanyLookupView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        # TODO(SY): implement get_corporate_code method
         def get_corporate_code(key):
-
-            # TODO(SY): add search by name method
             def search_by_name():
                 try:
-                    search_result = Corporation.objects.get(name=key)
+                    search_result = Corporation.objects.get(name=str(key))
                 except:
                     print("There is no matching query")
-                    search_result = "00126380"
-                print(search_result)
-                return search_result
+                print("search result: " + search_result.code)
+                return search_result.code
 
-            # TODO(SY): add search by ticker method
             def search_by_ticker():
                 try:
-                    search_result = Corporation.objects.get(ticker=key)
+                    search_result = Corporation.objects.get(ticker=str(key))
                 except:
                     print("There is no matching query")
-                    search_result = "00126380"
-                print(search_result)
-                return search_result
+                print("search result: " + search_result.code)
+                return search_result.code
 
             if len(key) == 6:
                 for char in key:
@@ -182,15 +175,14 @@ class CompanyLookupView(APIView):
 
             return financial_reports
 
-        # TODO(SY): change variable name after making get_corporate_code(e.g. corporate_name --> search_key)
-        corporate_name = request.query_params["corporateName"]
+        search_key = request.query_params["searchKey"]
         consolidation_key = request.query_params["consolidationKey"]
         if consolidation_key == "True":
             consolidation_key = "CFS"
         else:
             consolidation_key = "OFS"
 
-        corporate_code = get_corporate_code(corporate_name)
+        corporate_code = get_corporate_code(search_key)
         financial_statements = get_financial_statements()
         financial_reports = get_financial_reports(financial_statements)
 
