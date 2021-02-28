@@ -42,13 +42,11 @@ class Report:
 
 class FinancialReport:
     def get_corporate_code(key):
-        cal = "error"
-
         def search_by_name():
             try:
                 search_result = Corporation.objects.get(name=str(key))
             except Corporation.DoesNotExist as err1:
-                return cal
+                return err1
             else:
                 return search_result.code
 
@@ -56,7 +54,7 @@ class FinancialReport:
             try:
                 search_result = Corporation.objects.get(ticker=str(key))
             except Corporation.DoesNotExist as err2:
-                return cal
+                return err2
             else:
                 return search_result.code
 
