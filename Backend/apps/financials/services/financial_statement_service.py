@@ -1,4 +1,3 @@
-import json
 import requests
 
 URI = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json"

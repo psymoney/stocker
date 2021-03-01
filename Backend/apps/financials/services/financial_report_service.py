@@ -1,7 +1,5 @@
 from ..models import Corporation
-import psycopg2
 import requests
-import json
 from django.db import models
 
 CorporateCodeNotFoundError = "corporate code not found"
