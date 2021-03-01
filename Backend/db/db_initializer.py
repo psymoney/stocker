@@ -23,8 +23,6 @@ def Initilize_Db():
         }
 
         corps.append(temp)
-    with open(BASE_DIR + "/corp.json", "w", encoding='utf-8') as json_file:
-        json_file.write(json.dumps(corps, ensure_ascii=False, indent=4))
 
 
 Initilize_Db()

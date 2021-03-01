@@ -40,21 +40,24 @@ class Report:
         }
 
 
+CorporateCodeNotFoundError = "corporate code not found"
+
+
 class FinancialReport:
     def get_corporate_code(self, key):
         def search_by_name():
             try:
                 search_result = Corporation.objects.get(name=str(key))
-            except Corporation.DoesNotExist as err:
-                return err
+            except Corporation.DoesNotExist:
+                return CorporateCodeNotFoundError
             else:
                 return search_result.code
 
         def search_by_ticker():
             try:
                 search_result = Corporation.objects.get(ticker=str(key))
-            except Corporation.DoesNotExist as err:
-                return err
+            except Corporation.DoesNotExist:
+                return CorporateCodeNotFoundError
             else:
                 return search_result.code
 
