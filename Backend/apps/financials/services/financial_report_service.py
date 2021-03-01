@@ -1,8 +1,8 @@
-from .models import Corporation
-import psycopg2
+from ..models import Corporation
 import requests
-import json
 from django.db import models
+
+CorporateCodeNotFoundError = "corporate code not found"
 
 
 class Report:
@@ -40,10 +40,8 @@ class Report:
         }
 
 
-CorporateCodeNotFoundError = "corporate code not found"
+class FinancialReportService:
 
-
-class FinancialReport:
     def get_corporate_code(self, key):
         def search_by_name():
             try:
@@ -66,22 +64,6 @@ class FinancialReport:
         else:
             return search_by_name()
 
-    def get_financial_statements(self, corporate_code, consolidation_key):
-        URI = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json"
-        API_KEY = "d3f02b844b4afaa11b10e188bc7a092fc1a63f25"
-        business_year = 2019
-        report_code = 11011
-
-        # Request financial data from external API
-        response = requests.get(URI, params={
-            'crtfc_key': API_KEY,
-            'corp_code': corporate_code,
-            'bsns_year': business_year,
-            'reprt_code': report_code,
-            'fs_div': consolidation_key})
-
-        return response.json()
-
     def get_financial_reports(self, financial_statements):
         financial_reports = []
         revenue = None
@@ -89,31 +71,6 @@ class FinancialReport:
         operating_profit = None
         net_income = None
         total_equity = None
-
-        def get_report(financial_statements):
-            report = Report(financial_statements['sj_nm'], financial_statements['account_nm'], financial_statements['thstrm_nm'], financial_statements['thstrm_amount'],
-                            financial_statements['frmtrm_nm'], financial_statements['frmtrm_amount'], financial_statements['bfefrmtrm_nm'], financial_statements['bfefrmtrm_amount'])
-            return report
-
-        def get_growth_report(financial_statements, account_name):
-            current_year_growth = str(float(financial_statements['thstrm_amount']) /
-                                      float(financial_statements['frmtrm_amount']) - 1)
-            prior_year_growth = str(float(financial_statements['frmtrm_amount']) /
-                                    float(financial_statements['bfefrmtrm_amount']) - 1)
-            report = Report(financial_statements['sj_nm'], account_name, financial_statements['thstrm_nm'], current_year_growth,
-                            financial_statements['frmtrm_nm'], prior_year_growth, financial_statements['bfefrmtrm_nm'], '-')
-            return report
-
-        def get_ratio_report(numerator, denominator, account_name):
-            current_period_value = str(float(
-                numerator['thstrm_amount']) / float(denominator['thstrm_amount']))
-            prior_period_value = str(float(
-                numerator['frmtrm_amount']) / float(denominator['frmtrm_amount']))
-            past_prior_period_value = str(float(
-                numerator['bfefrmtrm_amount']) / float(denominator['bfefrmtrm_amount']))
-            report = Report(numerator['sj_nm'], account_name, numerator['thstrm_nm'], current_period_value,
-                            numerator['frmtrm_nm'], prior_period_value, numerator['bfefrmtrm_nm'], past_prior_period_value)
-            return report
 
         for report in financial_statements['list']:
             account_name = report['account_nm']
@@ -166,3 +123,31 @@ class FinancialReport:
             financial_reports.append(return_on_equity.to_JSON_response())
 
         return financial_reports
+
+
+def get_report(financial_statements):
+    report = Report(financial_statements['sj_nm'], financial_statements['account_nm'], financial_statements['thstrm_nm'], financial_statements['thstrm_amount'],
+                    financial_statements['frmtrm_nm'], financial_statements['frmtrm_amount'], financial_statements['bfefrmtrm_nm'], financial_statements['bfefrmtrm_amount'])
+    return report
+
+
+def get_growth_report(financial_statements, account_name):
+    current_year_growth = str(float(financial_statements['thstrm_amount']) /
+                              float(financial_statements['frmtrm_amount']) - 1)
+    prior_year_growth = str(float(financial_statements['frmtrm_amount']) /
+                            float(financial_statements['bfefrmtrm_amount']) - 1)
+    report = Report(financial_statements['sj_nm'], account_name, financial_statements['thstrm_nm'], current_year_growth,
+                    financial_statements['frmtrm_nm'], prior_year_growth, financial_statements['bfefrmtrm_nm'], '-')
+    return report
+
+
+def get_ratio_report(numerator, denominator, account_name):
+    current_period_value = str(float(
+        numerator['thstrm_amount']) / float(denominator['thstrm_amount']))
+    prior_period_value = str(float(
+        numerator['frmtrm_amount']) / float(denominator['frmtrm_amount']))
+    past_prior_period_value = str(float(
+        numerator['bfefrmtrm_amount']) / float(denominator['bfefrmtrm_amount']))
+    report = Report(numerator['sj_nm'], account_name, numerator['thstrm_nm'], current_period_value,
+                    numerator['frmtrm_nm'], prior_period_value, numerator['bfefrmtrm_nm'], past_prior_period_value)
+    return report
