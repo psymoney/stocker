@@ -15,20 +15,18 @@ class CompanyLookupView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        search_key = request.query_params["searchKey"]
-        consolidation_key = request.query_params["consolidationKey"]
-        if consolidation_key == "True":
-            consolidation_key = "CFS"
-        else:
-            consolidation_key = "OFS"
+        lookup_value = request.query_params["lookupValue"]
+        consolidation = request.query_params["consolidation"]
 
-        corporate_code = FinancialReport.get_corporate_code(search_key)
-        if(corporate_code == "error"):
-            return Response(data={"error: doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+        report = FinancialReport()
+        corporate_code = report.get_corporate_code(lookup_value)
+
+        if str(corporate_code) == 'Corporation matching query does not exist.':
+            return Response(data={"message": str(corporate_code)}, status=status.HTTP_404_NOT_FOUND)
         else:
-            financial_statements = FinancialReport.get_financial_statements(
+            financial_statements = report.get_financial_statements(
                 corporate_code, consolidation_key)
-            financial_reports = FinancialReport.get_financial_reports(
+            financial_reports = report.get_financial_reports(
                 financial_statements)
 
         return Response(data={"reports: ": financial_reports}, status=status.HTTP_200_OK)

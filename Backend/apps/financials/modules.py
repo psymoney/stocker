@@ -14,47 +14,47 @@ class Report:
                  prior_period_amount,
                  past_prior_period,
                  past_prior_period_amount):
-        self.reportType = report_type
-        self.accountName = account_name
-        self.currentPeriod = current_period
-        self.currentPeriodAmount = current_period_amount
-        self.priorPeriod = prior_period
-        self.priorPeriodAmount = prior_period_amount
-        self.pastPriorPeriod = past_prior_period
-        self.pastPriorPeriodAmount = past_prior_period_amount
+        self.report_type = report_type
+        self.account_name = account_name
+        self.current_period = current_period
+        self.current_period_amount = current_period_amount
+        self.prior_period = prior_period
+        self.prior_period_amount = prior_period_amount
+        self.past_prior_period = past_prior_period
+        self.past_prior_period_amount = past_prior_period_amount
 
     def __str__(self):
         return 'report type = {} account name = {} current period amount = {} prior period amount = {} past prior period amount = {}'.format(
-            self.reportType, self.accountName, self.currentPeriodAmount, self.priorPeriodAmount, self.pastPriorPeriodAmount)
+            self.report_type, self.account_name, self.current_period_amount, self.prior_period_amount, self.past_prior_period_amount)
 
     def to_JSON_response(self):
         return {
-            "reportType": self.reportType,
-            "accountName": self.accountName,
-            "currentPeriod": self.currentPeriod,
-            "currentPeriodAmount": self.currentPeriodAmount,
-            "priorPeriod": self.priorPeriod,
-            "priorPeriodAmount": self.priorPeriodAmount,
-            "pastPriorPeriod": self.pastPriorPeriod,
-            "pastPriorPeriodAmount": self.pastPriorPeriodAmount
+            "reportType": self.report_type,
+            "accountName": self.account_name,
+            "currentPeriod": self.current_period,
+            "currentPeriodAmount": self.current_period_amount,
+            "priorPeriod": self.prior_period,
+            "priorPeriodAmount": self.prior_period_amount,
+            "pastPriorPeriod": self.past_prior_period,
+            "pastPriorPeriodAmount": self.past_prior_period_amount
         }
 
 
 class FinancialReport:
-    def get_corporate_code(key):
+    def get_corporate_code(self, key):
         def search_by_name():
             try:
                 search_result = Corporation.objects.get(name=str(key))
-            except Corporation.DoesNotExist as err1:
-                return err1
+            except Corporation.DoesNotExist as err:
+                return err
             else:
                 return search_result.code
 
         def search_by_ticker():
             try:
                 search_result = Corporation.objects.get(ticker=str(key))
-            except Corporation.DoesNotExist as err2:
-                return err2
+            except Corporation.DoesNotExist as err:
+                return err
             else:
                 return search_result.code
 
@@ -63,7 +63,7 @@ class FinancialReport:
         else:
             return search_by_name()
 
-    def get_financial_statements(corporate_code, consolidation_key):
+    def get_financial_statements(self, corporate_code, consolidation_key):
         URI = "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json"
         API_KEY = "d3f02b844b4afaa11b10e188bc7a092fc1a63f25"
         business_year = 2019
@@ -79,7 +79,7 @@ class FinancialReport:
 
         return response.json()
 
-    def get_financial_reports(financial_statements):
+    def get_financial_reports(self, financial_statements):
         financial_reports = []
         revenue = None
         gross_profit = None
