@@ -6,5 +6,6 @@ class User(models.Model):
         db_table = "user"
 
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255, null=False)
+    email = models.CharField(max_length=255, null=False)
+    user_name = models.CharField(max_length=255, null=False)
     password = models.CharField(max_length=255, null=False)
