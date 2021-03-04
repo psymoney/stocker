@@ -1,9 +1,6 @@
 from ..models import User
-from django.contrib.auth import authenticate, login
 
-AuthenticationSuccess = 'Success'
 AuthenticationFailure = 'Failure'
-
 
 class SignInService:
     def sign_in(self, email, password):
