@@ -1,13 +1,15 @@
 from ..models import User
 
-AuthenticationFailure = 'Failure'
+UserNotFoundError = 'user not found'
+WrongPasswordError = 'wrong password'
+
 
 class SignInService:
     def sign_in(self, email, password):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return AuthenticationFailure
+            return UserNotFoundError
         if user.password != password:
-            return AuthenticationFailure
-        return True
+            return WrongPasswordError
+        return None
