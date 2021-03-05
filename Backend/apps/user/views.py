@@ -13,8 +13,8 @@ class SignupView(APIView):
         email = request.data["email"]
         user_name = request.data["userName"]
         password = request.data["password"]
-        signup = sign_up_service.SignUpService()
-        result = signup.create_user_account(email, user_name, password)
+        create_account = sign_up_service.SignUpService()
+        result = create_account.create_user_account(email, user_name, password)
 
         if result == sign_up_service.DuplicateEmailExistError:
             return Response(data={"message: ": result}, status=status.HTTP_409_CONFLICT)
@@ -42,6 +42,6 @@ class SigninView(APIView):
             return Response(data={"Message: ": result}, status=status.HTTP_404_NOT_FOUND)
         elif result == sign_in_service.WrongPasswordError:
             return Response(data={"Message: ": result}, status=status.HTTP_403_FORBIDDEN)
-
-        return Response(data={"Success"}, status=status.HTTP_200_OK)
+        # TODO(SY): Return token as data argument
+        return Response(status=status.HTTP_200_OK)
 

@@ -9,9 +9,9 @@ InvalidPasswordError = 'invalid password format'
 
 class SignUpService:
     def create_user_account(self, email, user_name, password):
-        def duplication_check(email):
+        def check_duplicate(email):
             try:
-                user = User.objects.get(email=email)
+                User.objects.get(email=email)
             except User.DoesNotExist:
                 return None
             except Exception as err:
@@ -37,7 +37,7 @@ class SignUpService:
                 return InvalidPasswordError
             return None
 
-        duplication = duplication_check(email)
+        duplication = check_duplicate(email)
         if duplication:
             return duplication
         if validate_email(email):
@@ -46,7 +46,9 @@ class SignUpService:
             return InvalidUserNameError
         if validate_password(password):
             return InvalidPasswordError
-
-        User.objects.create(email=email, user_name=user_name, password=password)
+        try:
+            User.objects.create(email=email, user_name=user_name, password=password)
+        except Exception as err:
+            return f"{err} error while creating user account"
         return None
 
