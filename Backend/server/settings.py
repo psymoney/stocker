@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'apps.financials.apps.FinancialsConfig',
     'apps.user.apps.UserConfig',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -53,11 +54,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-}
 
 ROOT_URLCONF = 'server.urls'
 
