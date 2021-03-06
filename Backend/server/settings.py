@@ -40,8 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'apps.financials.apps.FinancialsConfig',
     'apps.user.apps.UserConfig',
-    'rest_framework',
-    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
