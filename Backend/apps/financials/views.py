@@ -5,6 +5,7 @@ from rest_framework import status
 from .services import financial_report_service as report_service
 from .services import financial_statement_service as statement_service
 from ..user.services import token_service as tokenservice
+from ..user.services import sign_in_service
 
 
 class CompanyLookupView(APIView):
@@ -12,13 +13,33 @@ class CompanyLookupView(APIView):
 
     def get(self, request):
         token_service = tokenservice.TokenService()
-        token = request.headers['Authorization'].split()[1]
-        verification = token_service.verify_token(token)
-        if verification == tokenservice.AuthorizationDeniedError:
+        header = request.headers
+
+        if 'Authorization' not in header:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        elif verification:
+        if header['Authorization'].split()[0] != 'Bearer':
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        token = header['Authorization'].split()[1]
+        authorization_result = token_service.verify_token(token)
+
+        if authorization_result == tokenservice.AuthorizationDeniedError:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        elif authorization_result == sign_in_service.UserNotFoundError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        elif authorization_result == tokenservice.InvalidTokenError:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        elif authorization_result == tokenservice.DecodeError:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        elif authorization_result == tokenservice.InvalidSignatureError:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        elif authorization_result == tokenservice.ExpiredSignatureError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        elif authorization_result:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        query_parameters = request.query_params
+        print(query_parameters)
         query = request.query_params["query"]
         consolidation = request.query_params["consolidation"]
 

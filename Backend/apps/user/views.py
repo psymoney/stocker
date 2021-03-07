@@ -11,6 +11,15 @@ class SignupView(APIView):
     renderer_class = [JSONRenderer]
 
     def post(self, request):
+        body = request.body.decode('utf-8')
+
+        if "email" not in body:
+            return Response(data={"message: email not provided"}, status=status.HTTP_400_BAD_REQUEST)
+        if "userName" not in body:
+            return Response(data={"message: user name not provided"}, status=status.HTTP_400_BAD_REQUEST)
+        if "password" not in body:
+            return Response(data={"message: password not provided"}, status=status.HTTP_400_BAD_REQUEST)
+
         email = request.data["email"]
         user_name = request.data["userName"]
         password = request.data["password"]
@@ -27,6 +36,7 @@ class SignupView(APIView):
             return Response(data={"message: ": result}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         elif result:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         return Response(status=status.HTTP_200_OK)
 
 
@@ -34,15 +44,24 @@ class SigninView(APIView):
     renderer_classes = [JSONRenderer]
 
     def post(self, request):
+        body = request.body.decode('utf-8')
+
+        if "email" not in body:
+            return Response(data={"message: email not provided"}, status=status.HTTP_400_BAD_REQUEST)
+        if "password" not in body:
+            return Response(data={"message: password not provided"}, status=status.HTTP_400_BAD_REQUEST)
+
         email = request.data["email"]
         password = request.data["password"]
         sign_in_service = signin_service.SignInService()
         result = sign_in_service.sign_in(email, password)
+
         if result == signin_service.UserNotFoundError:
             return Response(data={"message: ": result}, status=status.HTTP_404_NOT_FOUND)
         elif result == signin_service.WrongPasswordError:
             return Response(data={"message: ": result}, status=status.HTTP_403_FORBIDDEN)
+
         token_service = TokenService()
-        access_token = token_service.create_token(request.data["email"])
+        access_token = token_service.create_token(email)
         return Response(data={"accessToken": access_token}, status=status.HTTP_200_OK)
 
