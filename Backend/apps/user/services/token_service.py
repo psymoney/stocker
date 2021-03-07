@@ -14,7 +14,7 @@ ExpiredSignatureError = 'signature expired'
 class TokenService:
     def create_token(self, email):
         payload = {"email": email}
-        token = jwt.encode(payload, SECRET_KEY, algorithm=ENCRYPTION_ALGORITHM).decode('utf-8')
+        token = jwt.encode(payload, SECRET_KEY, algorithm=ENCRYPTION_ALGORITHM)
         return token
 
     def verify_token(self, token):
@@ -25,8 +25,6 @@ class TokenService:
             return InvalidSignatureError
         except jwt.exceptions.DecodeError:
             return DecodeError
-        except jwt.exceptions.ExpiredSignatureError:
-            return ExpiredSignatureError
         except jwt.exceptions.InvalidTokenError:
             return InvalidTokenError
         try:

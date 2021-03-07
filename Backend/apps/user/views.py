@@ -44,6 +44,7 @@ class SigninView(APIView):
     renderer_classes = [JSONRenderer]
 
     def post(self, request):
+        print(type(request.body))
         body = request.body.decode('utf-8')
 
         if "email" not in body:

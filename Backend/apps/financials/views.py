@@ -23,9 +23,7 @@ class CompanyLookupView(APIView):
         token = header['Authorization'].split()[1]
         authorization_result = token_service.verify_token(token)
 
-        if authorization_result == tokenservice.AuthorizationDeniedError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result == sign_in_service.UserNotFoundError:
+        if authorization_result == sign_in_service.UserNotFoundError:
             return Response(status=status.HTTP_404_NOT_FOUND)
         elif authorization_result == tokenservice.InvalidTokenError:
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -33,15 +31,14 @@ class CompanyLookupView(APIView):
             return Response(status=status.HTTP_403_FORBIDDEN)
         elif authorization_result == tokenservice.InvalidSignatureError:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result == tokenservice.ExpiredSignatureError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
         elif authorization_result:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        query_parameters = request.query_params
-        print(query_parameters)
-        query = request.query_params["query"]
-        consolidation = request.query_params["consolidation"]
+        query = request.GET.get("query")
+        consolidation = request.GET.get("consolidation")
+
+        if not query or not consolidation:
+            return Response(data={"message:  data not given"}, status=status.HTTP_400_BAD_REQUEST)
 
         financial_report_service = report_service.FinancialReportService()
         financial_statement_service = statement_service.FinancialStatementService()
