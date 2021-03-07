@@ -11,7 +11,7 @@ class SignupView(APIView):
     renderer_class = [JSONRenderer]
 
     def post(self, request):
-        body = request.body.decode('utf-8')
+        body = request.data
 
         if "email" not in body:
             return Response(data={"message: email not provided"}, status=status.HTTP_400_BAD_REQUEST)
@@ -44,9 +44,7 @@ class SigninView(APIView):
     renderer_classes = [JSONRenderer]
 
     def post(self, request):
-        print(type(request.body))
-        body = request.body.decode('utf-8')
-
+        body = request.data
         if "email" not in body:
             return Response(data={"message: email not provided"}, status=status.HTTP_400_BAD_REQUEST)
         if "password" not in body:
