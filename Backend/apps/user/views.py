@@ -20,11 +20,8 @@ class SignupView(APIView):
         if "password" not in body:
             return Response(data={"message: password not provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-        email = request.data["email"]
-        user_name = request.data["userName"]
-        password = request.data["password"]
         sign_up_service = signup_service.SignUpService()
-        result = sign_up_service.create_user_account(email, user_name, password)
+        result = sign_up_service.create_user_account(body['email'], body['user_name'], body['password'])
 
         if result == signup_service.DuplicateEmailExistError:
             return Response(data={"message: ": result}, status=status.HTTP_409_CONFLICT)
@@ -50,10 +47,8 @@ class SigninView(APIView):
         if "password" not in body:
             return Response(data={"message: password not provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-        email = request.data["email"]
-        password = request.data["password"]
         sign_in_service = signin_service.SignInService()
-        result = sign_in_service.sign_in(email, password)
+        result = sign_in_service.sign_in(body['email'], body['password'])
 
         if result == signin_service.UserNotFoundError:
             return Response(data={"message: ": result}, status=status.HTTP_404_NOT_FOUND)
@@ -61,6 +56,6 @@ class SigninView(APIView):
             return Response(data={"message: ": result}, status=status.HTTP_403_FORBIDDEN)
 
         token_service = TokenService()
-        access_token = token_service.create_token(email)
+        access_token = token_service.create_token(body['email'])
         return Response(data={"accessToken": access_token}, status=status.HTTP_200_OK)
 
