@@ -34,3 +34,15 @@ class TokenService:
         except Exception as err:
             return f"{err} error while verifying token"
         return None
+
+    def return_email(self, token):
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=ENCRYPTION_ALGORITHM)
+            email = payload['email']
+        except jwt.exceptions.InvalidSignatureError:
+            return None
+        except jwt.exceptions.DecodeError:
+            return None
+        except jwt.exceptions.InvalidTokenError:
+            return None
+        return email

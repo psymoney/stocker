@@ -15,6 +15,7 @@ class CompanyLookupView(APIView):
         token_service = tokenservice.TokenService()
         header = request.headers
 
+        # TODO(SY): add authorization method
         if 'Authorization' not in header:
             return Response(status=status.HTTP_403_FORBIDDEN)
         if header['Authorization'].split()[0] != 'Bearer':

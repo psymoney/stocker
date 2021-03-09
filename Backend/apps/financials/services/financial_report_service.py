@@ -1,6 +1,4 @@
 from ..models import Corporation
-import requests
-from django.db import models
 
 CorporateCodeNotFoundError = "corporate code not found"
 
@@ -124,13 +122,13 @@ class FinancialReportService:
 
         return financial_reports
 
-
+# TODO(SY): create informative variables for better understanding of each fields
 def get_report(financial_statements):
     report = Report(financial_statements['sj_nm'], financial_statements['account_nm'], financial_statements['thstrm_nm'], financial_statements['thstrm_amount'],
                     financial_statements['frmtrm_nm'], financial_statements['frmtrm_amount'], financial_statements['bfefrmtrm_nm'], financial_statements['bfefrmtrm_amount'])
     return report
 
-
+# TODO(SY): change number types in reports
 def get_growth_report(financial_statements, account_name):
     current_year_growth = str(float(financial_statements['thstrm_amount']) /
                               float(financial_statements['frmtrm_amount']) - 1)

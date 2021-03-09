@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'apps.financials.apps.FinancialsConfig',
     'apps.user.apps.UserConfig',
+    'apps.favorite.apps.FavoriteConfig',
 ]
 
 MIDDLEWARE = [
