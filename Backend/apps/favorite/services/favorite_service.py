@@ -12,14 +12,11 @@ class FavoriteReport:
         self.corporate_code = corporate_code
         self.consolidation = consolidation
 
-    def __str__(self):
-        return 'email = {} corporate_name = {} corporate_code = {} consolidation = {}'.format(self.id, self.corporate_code, self.corporate_name, self.consolidation)
-
     def to_JSON_response(self):
         return {
             "id": self.id,
-            "corporation_name": self.corporate_name,
-            "corporation_code": self.corporate_code,
+            "corporateName": self.corporate_name,
+            "corporateCode": self.corporate_code,
             "consolidation": self.consolidation
         }
 
@@ -49,7 +46,6 @@ class FavoriteService:
                                     corporate_name=corporate_name,
                                     corporate_code=corporate_code,
                                     consolidation=consolidation)
-            print("creation success")
         # TODO(SY): add predictable exceptions
         except Exception as err:
             return f"{err} error while creating favorite"
@@ -62,11 +58,10 @@ class FavoriteService:
             return DoesNotExistError
         try:
             favorite = Favorite.objects.get(user_email=user,
-                                    corporate_name=corporate_name,
-                                    corporate_code=corporate_code,
-                                    consolidation=consolidation)
+                                            corporate_name=corporate_name,
+                                            corporate_code=corporate_code,
+                                            consolidation=consolidation)
             favorite.delete()
-            print("deletion success")
         # TODO(SY): add predictable exceptions
         except Exception as err:
             return f"{err} error while deleting favorite"
@@ -78,6 +73,7 @@ class FavoriteService:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             return DoesNotExistError
+        # TODO(SY): study on relational db function, 'join'
         try:
             favorite_group = Favorite.objects.filter(user_email=user)
         # TODO(SY): add predictable exceptions

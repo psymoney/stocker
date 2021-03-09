@@ -101,7 +101,6 @@ class FavoriteReportView(APIView):
     def get(self, request):
         token_service = tokenservice.TokenService()
         header = request.headers
-        print(header)
 
         # TODO(SY): add authorization method
         if 'Authorization' not in header:
@@ -123,8 +122,8 @@ class FavoriteReportView(APIView):
         elif authorization_result:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        query = request.GET.get("corporateCode")
-        consolidation = request.GET.get("consolidation")
+        query = request.query_params("corporateCode")
+        consolidation = request.query_params("consolidation")
 
         if not query or not consolidation:
             return Response(data={"message:  data not given"}, status=status.HTTP_400_BAD_REQUEST)

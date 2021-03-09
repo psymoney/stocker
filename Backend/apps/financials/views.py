@@ -35,8 +35,8 @@ class CompanyLookupView(APIView):
         elif authorization_result:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        query = request.GET.get("query")
-        consolidation = request.GET.get("consolidation")
+        query = request.query_params("query")
+        consolidation = request.query_params("consolidation")
 
         if not query or not consolidation:
             return Response(data={"message:  data not given"}, status=status.HTTP_400_BAD_REQUEST)
