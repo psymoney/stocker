@@ -122,7 +122,6 @@ class FinancialReportService:
 
         return financial_reports
 
-# TODO(SY): create informative variables for better understanding of each fields
 def get_report(financial_statements):
     report = Report(financial_statements['sj_nm'], financial_statements['account_nm'], financial_statements['thstrm_nm'], financial_statements['thstrm_amount'],
                     financial_statements['frmtrm_nm'], financial_statements['frmtrm_amount'], financial_statements['bfefrmtrm_nm'], financial_statements['bfefrmtrm_amount'])

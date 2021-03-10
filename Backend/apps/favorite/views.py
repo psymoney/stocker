@@ -26,17 +26,17 @@ class FavoriteView(APIView):
         authorization_result = token_service.verify_token(token)
 
         if authorization_result == sign_in_service.UserNotFoundError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_404_NOT_FOUND)
         elif authorization_result == tokenservice.InvalidTokenError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result == tokenservice.DecodeError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result == tokenservice.InvalidSignatureError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        email = token_service.return_email(token)
+        email = token_service.return_claim(token, 'email')
         body = request.data
 
         if 'corporateCode' not in body:
@@ -83,13 +83,13 @@ class FavoriteView(APIView):
         elif authorization_result:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        email = token_service.return_email(token)
+        email = token_service.return_claim(token, 'email')
 
         favorite_service = favoriteservice.FavoriteService()
         favorites = favorite_service.get_favorites(email)
 
         if favorites == favoriteservice.DoesNotExistError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(data={"message: empty favorite list"}, status=status.HTTP_200_OK)
         elif favorites is type(str):
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -112,21 +112,21 @@ class FavoriteReportView(APIView):
         authorization_result = token_service.verify_token(token)
 
         if authorization_result == sign_in_service.UserNotFoundError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_404_NOT_FOUND)
         elif authorization_result == tokenservice.InvalidTokenError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result == tokenservice.DecodeError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result == tokenservice.InvalidSignatureError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        query = request.query_params("corporateCode")
-        consolidation = request.query_params("consolidation")
+        query = request.query_params["corporateCode"]
+        consolidation = request.query_params["consolidation"]
 
         if not query or not consolidation:
-            return Response(data={"message:  data not given"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message:  invalid request"}, status=status.HTTP_400_BAD_REQUEST)
 
         financial_report_service = report_service.FinancialReportService()
         financial_statement_service = statement_service.FinancialStatementService()
