@@ -37,19 +37,7 @@ class TokenService:
 
     def parse_token(self, token):
         try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=ENCRYPTION_ALGORITHM)
-        except jwt.exceptions.InvalidTokenError:
-            return None
-        except jwt.exceptions.DecodeError:
-            return None
+            payload = jwt.decode(token, options={"verify_signature": False})
         except jwt.exceptions.InvalidTokenError:
             return None
         return payload
-
-    def return_claim(self, token, claim):
-        token_service = TokenService()
-        payload = token_service.parse_token(token)
-        claim = payload[claim]
-        if not claim:
-            return "empty value"
-        return claim

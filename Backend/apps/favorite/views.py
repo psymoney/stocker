@@ -48,8 +48,8 @@ class FavoriteView(APIView):
 
         favorite_service = favoriteservice.FavoriteService()
 
-        is_duplicate = favorite_service.check_duplicate(email, body['corporateName'], body['corporateCode'], body['consolidation'])
-        if is_duplicate:
+        duplicate_result = favorite_service.check_duplicate(email, body['corporateName'], body['corporateCode'], body['consolidation'])
+        if duplicate_result:
             deletion_result = favorite_service.delete_favorite(email, body['corporateName'], body['corporateCode'], body['consolidation'])
             if deletion_result:
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -83,17 +83,17 @@ class FavoriteView(APIView):
         elif authorization_result:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        email = token_service.return_claim(token, 'email')
+        email = token_service.parse_token(token)['email']
 
         favorite_service = favoriteservice.FavoriteService()
-        favorites = favorite_service.get_favorites(email)
+        result = favorite_service.get_favorites(email)
 
-        if favorites == favoriteservice.DoesNotExistError:
+        if result == favoriteservice.UserNotFound:
             return Response(data={"message: empty favorite list"}, status=status.HTTP_200_OK)
-        elif favorites is type(str):
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        elif result is type(str):
+            return Response(data={"message: ": result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(data={"list: ": favorites}, status=status.HTTP_200_OK)
+        return Response(data={"list: ": result}, status=status.HTTP_200_OK)
 
 class FavoriteReportView(APIView):
     renderer_classes = [JSONRenderer]

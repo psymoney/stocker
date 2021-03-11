@@ -1,8 +1,8 @@
 from ..models import Favorite as FavoriteModel
 from apps.user.models import User
 
-DuplicateExistError = 'duplicate favorite exist'
-DoesNotExistError = 'list does not exist'
+FavoriteAlreadyExistError = 'favorite already exists'
+UserNotFound = 'user not found'
 
 
 class Favorite:
@@ -26,7 +26,7 @@ class FavoriteService:
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return DoesNotExistError
+            return UserNotFound
         try:
             FavoriteModel.objects.get(user_email=user,
                                       corporate_name=corporate_name,
@@ -34,7 +34,7 @@ class FavoriteService:
                                       consolidation=consolidation)
         except FavoriteModel.DoesNotExist:
             return None
-        return DuplicateExistError
+        return FavoriteAlreadyExistError
 
     def create_favorite(self, email, corporate_name, corporate_code, consolidation):
         user = User.objects.get(email=email)
@@ -62,16 +62,16 @@ class FavoriteService:
         return None
 
     def get_favorites(self, email):
-        favorites = []
+        result = []
         user = User.objects.get(email=email)
         try:
-            favorite_group = FavoriteModel.objects.filter(user_email=user)
+            favorites = FavoriteModel.objects.filter(user_email=user)
         # TODO(SY): add predictable exceptions
         except Exception as err:
-            return f"{err} error while calling favorites"
+            return f"{err} error while getting favorites"
 
-        for favorite in favorite_group:
-            favorite_report_parameters = Favorite(favorite.id, favorite.corporate_name, favorite.corporate_code, favorite.consolidation)
-            favorites.append(favorite_report_parameters.to_JSON_response())
+        for favorite in favorites:
+            favorite = Favorite(favorite.id, favorite.corporate_name, favorite.corporate_code, favorite.consolidation)
+            result.append(favorite.to_JSON_response())
 
-        return favorites
+        return result

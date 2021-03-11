@@ -39,7 +39,7 @@ class CompanyLookupView(APIView):
         consolidation = request.query_params["consolidation"]
 
         if not query or not consolidation:
-            return Response(data={"message:  data not given"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message: data not given"}, status=status.HTTP_400_BAD_REQUEST)
 
         financial_report_service = report_service.FinancialReportService()
         financial_statement_service = statement_service.FinancialStatementService()
