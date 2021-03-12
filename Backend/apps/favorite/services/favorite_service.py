@@ -2,7 +2,7 @@ from ..models import Favorite as FavoriteModel
 from apps.user.models import User
 
 FavoriteAlreadyExistError = 'favorite already exists'
-UserNotFound = 'user not found'
+UserNotFoundError = 'user not found'
 
 
 class Favorite:
@@ -26,7 +26,7 @@ class FavoriteService:
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return UserNotFound
+            return UserNotFoundError
         try:
             FavoriteModel.objects.get(user_email=user,
                                       corporate_name=corporate_name,
@@ -70,8 +70,8 @@ class FavoriteService:
         except Exception as err:
             return f"{err} error while getting favorites"
 
-        for favorite in favorites:
-            favorite = Favorite(favorite.id, favorite.corporate_name, favorite.corporate_code, favorite.consolidation)
-            result.append(favorite.to_JSON_response())
+        for f in favorites:
+            f = Favorite(f.id, f.corporate_name, f.corporate_code, f.consolidation)
+            result.append(f.to_JSON_response())
 
         return result

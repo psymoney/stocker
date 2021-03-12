@@ -34,7 +34,7 @@ class FavoriteView(APIView):
         elif authorization_result == tokenservice.InvalidSignatureError:
             return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={"message: an error occurred while verifying token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         email = token_service.return_claim(token, 'email')
         body = request.data
@@ -73,27 +73,27 @@ class FavoriteView(APIView):
         authorization_result = token_service.verify_token(token)
 
         if authorization_result == sign_in_service.UserNotFoundError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_404_NOT_FOUND)
         elif authorization_result == tokenservice.InvalidTokenError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result == tokenservice.DecodeError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result == tokenservice.InvalidSignatureError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={"message: an error occurred while verifying token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        email = token_service.parse_token(token)['email']
+        payload = token_service.parse_token(token)
+        email = payload['email']
 
         favorite_service = favoriteservice.FavoriteService()
         result = favorite_service.get_favorites(email)
 
-        if result == favoriteservice.UserNotFound:
-            return Response(data={"message: empty favorite list"}, status=status.HTTP_200_OK)
-        elif result is type(str):
+        if result is type(str):
             return Response(data={"message: ": result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(data={"list: ": result}, status=status.HTTP_200_OK)
+
 
 class FavoriteReportView(APIView):
     renderer_classes = [JSONRenderer]
@@ -120,13 +120,13 @@ class FavoriteReportView(APIView):
         elif authorization_result == tokenservice.InvalidSignatureError:
             return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={"message: an error occurred while verifying token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         query = request.query_params["corporateCode"]
         consolidation = request.query_params["consolidation"]
 
         if not query or not consolidation:
-            return Response(data={"message:  invalid request"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message: malformed request"}, status=status.HTTP_400_BAD_REQUEST)
 
         financial_report_service = report_service.FinancialReportService()
         financial_statement_service = statement_service.FinancialStatementService()
