@@ -8,6 +8,10 @@ from .services import favorite_service as favoriteservice
 from ..financials.services import financial_report_service as report_service
 from ..financials.services import financial_statement_service as statement_service
 
+MalformedRequestError = 'malformed request'
+EmptyCorporateCodeError = 'empty corporate code'
+EmptyCorporateNameError = 'empty corporate name'
+EmptyConsolidationError = 'empty consolidation'
 
 class FavoriteView(APIView):
     renderer_classes = [JSONRenderer]
@@ -18,12 +22,12 @@ class FavoriteView(APIView):
 
         # TODO(SY): add authorization method
         if 'Authorization' not in header:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_403_FORBIDDEN)
         if header['Authorization'].split()[0] != 'Bearer':
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
 
         token = header['Authorization'].split()[1]
-        authorization_result = token_service.verify_token(token)
+        authorization_result = token_service.validate(token)
 
         if authorization_result == sign_in_service.UserNotFoundError:
             return Response(data={"message: ": authorization_result}, status=status.HTTP_404_NOT_FOUND)
@@ -34,27 +38,31 @@ class FavoriteView(APIView):
         elif authorization_result == tokenservice.InvalidSignatureError:
             return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result:
-            return Response(data={"message: an error occurred while verifying token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        email = token_service.return_claim(token, 'email')
+        payload = token_service.parse_token(token)
+        email = payload['email']
         body = request.data
 
         if 'corporateCode' not in body:
-            return Response(data={"message: corporateCode not provided"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message: ": EmptyCorporateCodeError}, status=status.HTTP_400_BAD_REQUEST)
         if 'corporateName' not in body:
-            return Response(data={"message: corporateName not provided"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message: ": EmptyCorporateNameError}, status=status.HTTP_400_BAD_REQUEST)
         if 'consolidation' not in body:
-            return Response(data={"message: consolidation not provided"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message: ": EmptyConsolidationError}, status=status.HTTP_400_BAD_REQUEST)
 
         favorite_service = favoriteservice.FavoriteService()
 
-        duplicate_result = favorite_service.check_duplicate(email, body['corporateName'], body['corporateCode'], body['consolidation'])
+        duplicate_result = favorite_service.check_duplicate(email, body['corporateName'], body['corporateCode'],
+                                                            body['consolidation'])
         if duplicate_result:
-            deletion_result = favorite_service.delete_favorite(email, body['corporateName'], body['corporateCode'], body['consolidation'])
+            deletion_result = favorite_service.delete_favorite(email, body['corporateName'], body['corporateCode'],
+                                                               body['consolidation'])
             if deletion_result:
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            creation_result = favorite_service.create_favorite(email, body['corporateName'], body['corporateCode'], body['consolidation'])
+            creation_result = favorite_service.create_favorite(email, body['corporateName'], body['corporateCode'],
+                                                               body['consolidation'])
             if creation_result:
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(status=status.HTTP_200_OK)
@@ -65,12 +73,12 @@ class FavoriteView(APIView):
 
         # TODO(SY): add authorization method
         if 'Authorization' not in header:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_403_FORBIDDEN)
         if header['Authorization'].split()[0] != 'Bearer':
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
 
         token = header['Authorization'].split()[1]
-        authorization_result = token_service.verify_token(token)
+        authorization_result = token_service.validate(token)
 
         if authorization_result == sign_in_service.UserNotFoundError:
             return Response(data={"message: ": authorization_result}, status=status.HTTP_404_NOT_FOUND)
@@ -81,7 +89,7 @@ class FavoriteView(APIView):
         elif authorization_result == tokenservice.InvalidSignatureError:
             return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result:
-            return Response(data={"message: an error occurred while verifying token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         payload = token_service.parse_token(token)
         email = payload['email']
@@ -104,12 +112,12 @@ class FavoriteReportView(APIView):
 
         # TODO(SY): add authorization method
         if 'Authorization' not in header:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_403_FORBIDDEN)
         if header['Authorization'].split()[0] != 'Bearer':
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
 
         token = header['Authorization'].split()[1]
-        authorization_result = token_service.verify_token(token)
+        authorization_result = token_service.validate(token)
 
         if authorization_result == sign_in_service.UserNotFoundError:
             return Response(data={"message: ": authorization_result}, status=status.HTTP_404_NOT_FOUND)
@@ -120,7 +128,7 @@ class FavoriteReportView(APIView):
         elif authorization_result == tokenservice.InvalidSignatureError:
             return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result:
-            return Response(data={"message: an error occurred while verifying token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         query = request.query_params["corporateCode"]
         consolidation = request.query_params["consolidation"]

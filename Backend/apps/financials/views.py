@@ -7,6 +7,7 @@ from .services import financial_statement_service as statement_service
 from ..user.services import token_service as tokenservice
 from ..user.services import sign_in_service
 
+MalformedRequestError = 'malformed request'
 
 class CompanyLookupView(APIView):
     renderer_classes = [JSONRenderer]
@@ -17,12 +18,12 @@ class CompanyLookupView(APIView):
 
         # TODO(SY): add authorization method
         if 'Authorization' not in header:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_403_FORBIDDEN)
         if header['Authorization'].split()[0] != 'Bearer':
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
 
         token = header['Authorization'].split()[1]
-        authorization_result = token_service.verify_token(token)
+        authorization_result = token_service.validate(token)
 
         if authorization_result == sign_in_service.UserNotFoundError:
             return Response(data={"message: ": authorization_result}, status=status.HTTP_404_NOT_FOUND)
@@ -33,13 +34,13 @@ class CompanyLookupView(APIView):
         elif authorization_result == tokenservice.InvalidSignatureError:
             return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
         elif authorization_result:
-            return Response(data={"message: an error occurred while verifying token"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         query = request.query_params["query"]
         consolidation = request.query_params["consolidation"]
 
         if not query or not consolidation:
-            return Response(data={"message: malformed request"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
 
         financial_report_service = report_service.FinancialReportService()
         financial_statement_service = statement_service.FinancialStatementService()

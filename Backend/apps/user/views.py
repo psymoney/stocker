@@ -56,6 +56,6 @@ class SigninView(APIView):
             return Response(data={"message: ": result}, status=status.HTTP_403_FORBIDDEN)
 
         token_service = TokenService()
-        access_token = token_service.create_token(body['email'])
+        access_token = token_service.create(body['email'])
         return Response(data={"accessToken": access_token}, status=status.HTTP_200_OK)
 
