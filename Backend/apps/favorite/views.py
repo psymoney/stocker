@@ -20,7 +20,7 @@ class FavoriteView(APIView):
 
     def post(self, request):
         token_service = tokenservice.TokenService()
-        token = auth_header.get_authorization_header(request.headers)
+        token = auth_header.get_token(request.headers)
 
         payload, error_message = token_service.parse_token(token)
         if not payload:
@@ -50,7 +50,7 @@ class FavoriteView(APIView):
 
     def get(self, request):
         token_service = tokenservice.TokenService()
-        token = auth_header.get_authorization_header(request.headers)
+        token = auth_header.get_token(request.headers)
 
         payload, error_message = token_service.parse_token(token)
         if not payload:
@@ -72,7 +72,7 @@ class FavoriteReportView(APIView):
 
     def get(self, request):
         token_service = tokenservice.TokenService()
-        token = auth_header.get_authorization_header(request.headers)
+        token = auth_header.get_token(request.headers)
 
         payload, error_message = token_service.parse_token(token)
         if not payload:

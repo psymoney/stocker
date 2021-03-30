@@ -1,7 +1,7 @@
 MalformedRequestError = 'malformed request'
 
 
-def get_authorization_header(header):
+def get_token(header):
     if 'Authorization' not in header:
         return MalformedRequestError
     if header['Authorization'].split()[0] != 'Bearer':
