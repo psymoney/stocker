@@ -1,55 +1,36 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
 from rest_framework import status
-from ..user.services import token_service as tokenservice
-from ..user.services import sign_in_service
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .services import favorite_service as favoriteservice
 from ..financials.services import financial_report_service as report_service
 from ..financials.services import financial_statement_service as statement_service
+from ..rest import auth_header
+from ..user.services import token_service as tokenservice
 
 MalformedRequestError = 'malformed request'
 EmptyCorporateCodeError = 'empty corporate code'
 EmptyCorporateNameError = 'empty corporate name'
 EmptyConsolidationError = 'empty consolidation'
 
+
 class FavoriteView(APIView):
     renderer_classes = [JSONRenderer]
 
     def post(self, request):
         token_service = tokenservice.TokenService()
-        header = request.headers
+        token = auth_header.get_authorization_header(request.headers)
 
-        # TODO(SY): add authorization method
-        if 'Authorization' not in header:
-            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_403_FORBIDDEN)
-        if header['Authorization'].split()[0] != 'Bearer':
-            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
+        payload, error_message = token_service.parse_token(token)
+        if not payload:
+            return Response(data={"message: ": error_message}, status=status.HTTP_403_FORBIDDEN)
 
-        token = header['Authorization'].split()[1]
-        authorization_result = token_service.validate(token)
-
-        if authorization_result == sign_in_service.UserNotFoundError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_404_NOT_FOUND)
-        elif authorization_result == tokenservice.InvalidTokenError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result == tokenservice.DecodeError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result == tokenservice.InvalidSignatureError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        payload = token_service.parse_token(token)
         email = payload['email']
         body = request.data
 
-        if 'corporateCode' not in body:
-            return Response(data={"message: ": EmptyCorporateCodeError}, status=status.HTTP_400_BAD_REQUEST)
-        if 'corporateName' not in body:
-            return Response(data={"message: ": EmptyCorporateNameError}, status=status.HTTP_400_BAD_REQUEST)
-        if 'consolidation' not in body:
-            return Response(data={"message: ": EmptyConsolidationError}, status=status.HTTP_400_BAD_REQUEST)
+        if 'corporateCode' not in body or 'corporateName' not in body or 'consolidation' not in body:
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
 
         favorite_service = favoriteservice.FavoriteService()
 
@@ -69,29 +50,12 @@ class FavoriteView(APIView):
 
     def get(self, request):
         token_service = tokenservice.TokenService()
-        header = request.headers
+        token = auth_header.get_authorization_header(request.headers)
 
-        # TODO(SY): add authorization method
-        if 'Authorization' not in header:
-            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_403_FORBIDDEN)
-        if header['Authorization'].split()[0] != 'Bearer':
-            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
+        payload, error_message = token_service.parse_token(token)
+        if not payload:
+            return Response(data={"message: ": error_message}, status=status.HTTP_403_FORBIDDEN)
 
-        token = header['Authorization'].split()[1]
-        authorization_result = token_service.validate(token)
-
-        if authorization_result == sign_in_service.UserNotFoundError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_404_NOT_FOUND)
-        elif authorization_result == tokenservice.InvalidTokenError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result == tokenservice.DecodeError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result == tokenservice.InvalidSignatureError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        payload = token_service.parse_token(token)
         email = payload['email']
 
         favorite_service = favoriteservice.FavoriteService()
@@ -108,27 +72,11 @@ class FavoriteReportView(APIView):
 
     def get(self, request):
         token_service = tokenservice.TokenService()
-        header = request.headers
+        token = auth_header.get_authorization_header(request.headers)
 
-        # TODO(SY): add authorization method
-        if 'Authorization' not in header:
-            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_403_FORBIDDEN)
-        if header['Authorization'].split()[0] != 'Bearer':
-            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
-
-        token = header['Authorization'].split()[1]
-        authorization_result = token_service.validate(token)
-
-        if authorization_result == sign_in_service.UserNotFoundError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_404_NOT_FOUND)
-        elif authorization_result == tokenservice.InvalidTokenError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result == tokenservice.DecodeError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result == tokenservice.InvalidSignatureError:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_403_FORBIDDEN)
-        elif authorization_result:
-            return Response(data={"message: ": authorization_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        payload, error_message = token_service.parse_token(token)
+        if not payload:
+            return Response(data={"message: ": error_message}, status=status.HTTP_403_FORBIDDEN)
 
         query = request.query_params["corporateCode"]
         consolidation = request.query_params["consolidation"]
