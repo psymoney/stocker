@@ -1,4 +1,5 @@
 import jwt
+from rest_framework import status
 from ..models import User
 from . import sign_in_service
 SECRET_KEY = '1q2w3e4r!@#$'
@@ -9,6 +10,7 @@ InvalidTokenError = 'invalid token'
 DecodeError = 'error while decoding token'
 InvalidSignatureError = 'invalid signature'
 ExpiredSignatureError = 'signature expired'
+MalformedRequestError = 'malformed request'
 
 
 class TokenService:
@@ -17,22 +19,14 @@ class TokenService:
         token = jwt.encode(payload, SECRET_KEY, algorithm=ENCRYPTION_ALGORITHM)
         return token
 
-    def validate(self, token):
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=ENCRYPTION_ALGORITHM)
-            email = payload["email"]
-        except jwt.exceptions.InvalidSignatureError:
-            return InvalidSignatureError
-        except jwt.exceptions.DecodeError:
-            return DecodeError
-        except jwt.exceptions.InvalidTokenError:
-            return InvalidTokenError
-
-        return None
-
     def parse_token(self, token):
         try:
-            payload = jwt.decode(token, options={"verify_signature": False})
+            payload = jwt.decode(token, SECRET_KEY, algorithms=ENCRYPTION_ALGORITHM)
+        except jwt.exceptions.InvalidSignatureError:
+            return None, InvalidSignatureError
+        except jwt.exceptions.DecodeError:
+            return None, DecodeError
         except jwt.exceptions.InvalidTokenError:
-            return None
-        return payload
+            return None, InvalidTokenError
+        return payload, None
+
