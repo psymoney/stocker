@@ -1,5 +1,5 @@
-from ..models import Favorite as FavoriteModel
 from apps.user.models import User
+from ..models import Favorite as FavoriteModel
 
 FavoriteAlreadyExistError = 'favorite already exists'
 UserNotFoundError = 'user not found'
@@ -20,21 +20,22 @@ class Favorite:
             "consolidation": self.consolidation
         }
 
+
 class FavoriteService:
 
     def check_duplicate(self, email, corporate_name, corporate_code, consolidation):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return UserNotFoundError
+            return None, UserNotFoundError
         try:
             FavoriteModel.objects.get(user_email=user,
                                       corporate_name=corporate_name,
                                       corporate_code=corporate_code,
                                       consolidation=consolidation)
         except FavoriteModel.DoesNotExist:
-            return None
-        return FavoriteAlreadyExistError
+            return False, None
+        return True, None
 
     def create_favorite(self, email, corporate_name, corporate_code, consolidation):
         user = User.objects.get(email=email)
