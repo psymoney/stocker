@@ -34,18 +34,41 @@ class FavoriteView(APIView):
 
         favorite_service = favoriteservice.FavoriteService()
 
-        duplicate_result = favorite_service.check_duplicate(email, body['corporateName'], body['corporateCode'],
-                                                            body['consolidation'])
-        if duplicate_result:
-            deletion_result = favorite_service.delete_favorite(email, body['corporateName'], body['corporateCode'],
-                                                               body['consolidation'])
-            if deletion_result:
-                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            creation_result = favorite_service.create_favorite(email, body['corporateName'], body['corporateCode'],
-                                                               body['consolidation'])
-            if creation_result:
-                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        is_duplicated, error_message = favorite_service.check_duplicate(email, body['corporateName'],
+                                                                        body['corporateCode'],
+                                                                        body['consolidation'])
+        if error_message:
+            return Response(data={'message: ': error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+        if is_duplicated:
+            return Response(data={'message: favorite already exist'}, status=status.HTTP_409_CONFLICT)
+
+        creation_result = favorite_service.create_favorite(email, body['corporateName'], body['corporateCode'],
+                                                           body['consolidation'])
+        if creation_result:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_200_OK)
+
+    def delete(self, request):
+        token_service = tokenservice.TokenService()
+        token = auth_header.get_token(request.headers)
+
+        payload, error_message = token_service.parse_token(token)
+        if not payload:
+            return Response(data={"message: ": error_message}, status=status.HTTP_403_FORBIDDEN)
+
+        email = payload['email']
+        body = request.data
+
+        if 'corporateCode' not in body or 'corporateName' not in body or 'consolidation' not in body:
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
+
+        favorite_service = favoriteservice.FavoriteService()
+
+        deletion_result = favorite_service.delete_favorite(email, body['corporateName'], body['corporateCode'],
+                                                           body['consolidation'])
+        if deletion_result:
+            return Response(data={'message: ': deletion_result}, status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_200_OK)
 
     def get(self, request):
