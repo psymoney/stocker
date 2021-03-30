@@ -40,13 +40,14 @@ class FavoriteView(APIView):
         if error_message:
             return Response(data={'message: ': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not is_duplicated:
-            creation_result = favorite_service.create_favorite(email, body['corporateName'], body['corporateCode'],
-                                                               body['consolidation'])
-            if creation_result:
-                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return Response(status=status.HTTP_200_OK)
-        return Response(data={'message: favorite already exist'}, status=status.HTTP_400_BAD_REQUEST)
+        if is_duplicated:
+            return Response(data={'message: favorite already exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+        creation_result = favorite_service.create_favorite(email, body['corporateName'], body['corporateCode'],
+                                                           body['consolidation'])
+        if creation_result:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_200_OK)
 
     def delete(self, request):
         token_service = tokenservice.TokenService()
@@ -64,19 +65,11 @@ class FavoriteView(APIView):
 
         favorite_service = favoriteservice.FavoriteService()
 
-        is_duplicated, error_message = favorite_service.check_duplicate(email, body['corporateName'],
-                                                                        body['corporateCode'],
-                                                                        body['consolidation'])
-        if error_message:
-            return Response(data={'message: ': error_message}, status=status.HTTP_400_BAD_REQUEST)
-
-        if is_duplicated:
-            deletion_result = favorite_service.delete_favorite(email, body['corporateName'], body['corporateCode'],
-                                                               body['consolidation'])
-            if deletion_result:
-                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return Response(status=status.HTTP_200_OK)
-        return Response(data={'message: favorite not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        deletion_result = favorite_service.delete_favorite(email, body['corporateName'], body['corporateCode'],
+                                                           body['consolidation'])
+        if deletion_result:
+            return Response(data={'message: ': deletion_result}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_200_OK)
 
     def get(self, request):
         token_service = tokenservice.TokenService()
