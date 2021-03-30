@@ -21,7 +21,7 @@ class SignupView(APIView):
             return Response(data={"message: password not provided"}, status=status.HTTP_400_BAD_REQUEST)
 
         sign_up_service = signup_service.SignUpService()
-        result = sign_up_service.create_user_account(body['email'], body['user_name'], body['password'])
+        result = sign_up_service.create_user_account(body['email'], body['userName'], body['password'])
 
         if result == signup_service.DuplicateEmailExistError:
             return Response(data={"message: ": result}, status=status.HTTP_409_CONFLICT)
@@ -56,6 +56,6 @@ class SigninView(APIView):
             return Response(data={"message: ": result}, status=status.HTTP_403_FORBIDDEN)
 
         token_service = TokenService()
-        access_token = token_service.create_token(body['email'])
+        access_token = token_service.create(body['email'])
         return Response(data={"accessToken": access_token}, status=status.HTTP_200_OK)
 
