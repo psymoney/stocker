@@ -1,29 +1,43 @@
-from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework.request import Request
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
 from rest_framework import status
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-# TODO(SY): remove index & error view after implementing financials API
+from .services import financial_report_service as report_service
+from .services import financial_statement_service as statement_service
+from ..rest import auth_header
+from ..user.services import token_service as tokenservice
+
+MalformedRequestError = 'malformed request'
 
 
-class IndexView(APIView):
+class CompanyLookupView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        return Response(data={"Hello": "World"}, status=status.HTTP_200_OK)
+        token_service = tokenservice.TokenService()
+        token = auth_header.get_token(request.headers)
 
-    def post(self, request):
-        body = request.data
-        token = request.query_params["token"]
-        print(f"Body = {body} token = {token}")
+        payload, error_message = token_service.parse_token(token)
+        if not payload:
+            return Response(data={"message: ": error_message}, status=status.HTTP_403_FORBIDDEN)
+        query = request.query_params["query"]
+        consolidation = request.query_params["consolidation"]
 
-        return Response(data={"post": "poooost"}, status=status.HTTP_200_OK)
+        if not query or not consolidation:
+            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
 
+        print(query)
+        financial_report_service = report_service.FinancialReportService()
+        financial_statement_service = statement_service.FinancialStatementService()
+        corporate_code = financial_report_service.get_corporate_code(query)
 
-class ErrorView(APIView):
-    renderer_classes = [JSONRenderer]
+        if corporate_code == report_service.CorporateCodeNotFoundError:
+            return Response(data={"message": report_service.CorporateCodeNotFoundError},
+                            status=status.HTTP_404_NOT_FOUND)
+        financial_statements = financial_statement_service.get_financial_statements(
+            corporate_code, consolidation)
+        financial_reports = financial_report_service.get_financial_reports(
+            financial_statements)
 
-    def get(self, request):
-        return Response(data={"Msg": 1234}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(data={"reports: ": financial_reports}, status=status.HTTP_200_OK)
