@@ -1,9 +1,10 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
 from rest_framework import status
-from .services import sign_up_service as signup_service
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .services import sign_in_service as signin_service
+from .services import sign_up_service as signup_service
 from .services.token_service import TokenService
 
 
@@ -58,4 +59,3 @@ class SigninView(APIView):
         token_service = TokenService()
         access_token = token_service.create(body['email'])
         return Response(data={"accessToken": access_token}, status=status.HTTP_200_OK)
-
