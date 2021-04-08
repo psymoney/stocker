@@ -6,6 +6,16 @@ class Navigation extends React.Component {
   state = {
     isLoggedIn: false
   };
+
+  onLogin = () => {
+    this.setState({ isLoggedIn: true });
+  }
+
+  onLogout = () => {
+    this.setState({ isLoggedIn: false });
+
+  }
+
   render() {
     let signInButton;
     let signUpButton;
