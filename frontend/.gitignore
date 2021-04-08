@@ -22,7 +22,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # development environment
-
+.idea/
+.idea
 /package-lock.json
 /package.json
 
