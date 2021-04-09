@@ -1,4 +1,7 @@
 ## PR Checklist
+### PR settings
+- [ ] base branch 확인
+- [ ] Issue 링크 확인
 ### Code Quality
 - [ ] 불필요한 코드 또는 미사용 코드가 없는가?
 ### Operation
