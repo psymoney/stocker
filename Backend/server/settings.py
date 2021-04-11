@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'apps.financials.apps.FinancialsConfig',
     'apps.user.apps.UserConfig',
     'apps.favorite.apps.FavoriteConfig',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 
