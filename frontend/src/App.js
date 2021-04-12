@@ -1,6 +1,6 @@
 import { HashRouter, Route } from 'react-router-dom';
-import Navigation from './components/Navigation';
-import SignIn from './pages/Signin';
+import Navigation from './components/navigation';
+import SignIn from './pages/signin';
 
 function App(props) {
   return (
