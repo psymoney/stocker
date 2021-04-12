@@ -55,7 +55,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3080",
+    "http://localhost:3000",
     "http://127.29.208.1:3000"
 ]
 
