@@ -24,13 +24,13 @@ class SignupView(APIView):
         result = sign_up_service.create_user_account(body['email'], body['userName'], body['password'])
 
         if result == signup_service.DuplicateEmailExistError:
-            return Response(data={"message: ": result}, status=status.HTTP_409_CONFLICT)
+            return Response(data={"message": result}, status=status.HTTP_409_CONFLICT)
         elif result == signup_service.InvalidEmailError:
-            return Response(data={"message: ": result}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response(data={"message": result}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         elif result == signup_service.InvalidUserNameError:
-            return Response(data={"message: ": result}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response(data={"message": result}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         elif result == signup_service.InvalidPasswordError:
-            return Response(data={"message: ": result}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response(data={"message": result}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         elif result:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -51,9 +51,9 @@ class SigninView(APIView):
         result = sign_in_service.sign_in(body['email'], body['password'])
 
         if result == signin_service.UserNotFoundError:
-            return Response(data={"message: ": result}, status=status.HTTP_404_NOT_FOUND)
+            return Response(data={"message": result}, status=status.HTTP_404_NOT_FOUND)
         elif result == signin_service.WrongPasswordError:
-            return Response(data={"message: ": result}, status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message": result}, status=status.HTTP_403_FORBIDDEN)
 
         token_service = TokenService()
         access_token = token_service.create(body['email'])

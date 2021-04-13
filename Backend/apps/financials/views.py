@@ -20,12 +20,12 @@ class CompanyLookupView(APIView):
 
         payload, error_message = token_service.parse_token(token)
         if not payload:
-            return Response(data={"message: ": error_message}, status=status.HTTP_403_FORBIDDEN)
+            return Response(data={"message": error_message}, status=status.HTTP_403_FORBIDDEN)
         query = request.query_params["query"]
         consolidation = request.query_params["consolidation"]
 
         if not query or not consolidation:
-            return Response(data={"message: ": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message": MalformedRequestError}, status=status.HTTP_400_BAD_REQUEST)
 
         print(query)
         financial_report_service = report_service.FinancialReportService()
@@ -40,4 +40,4 @@ class CompanyLookupView(APIView):
         financial_reports = financial_report_service.get_financial_reports(
             financial_statements)
 
-        return Response(data={"reports: ": financial_reports}, status=status.HTTP_200_OK)
+        return Response(data={"reports": financial_reports}, status=status.HTTP_200_OK)
