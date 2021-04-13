@@ -59,57 +59,50 @@ class SignUp extends React.Component {
     this.props.history.push('/main');
   };
 
-  handleOnChange = (e) => {
+  handleOnChange = (event) => {
     this.setState({
-      [e.target.name]: e.target.value,
+      [event.target.name]: event.target.value,
     });
   };
 
-  handleOnKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      this.authorize();
-    }
-  };
-
-  authorize = async () => {
-    if (!((this.isValidEmail() && this.isValidPassword()) &&
+  handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!(this.isValidEmail() && this.isValidPassword() &&
       this.isValidName())) {
       return;
     }
-    let data = await signUp(this.state.email, this.state.name,
+    let errorMessage = await signUp(this.state.email, this.state.name,
       this.state.password);
-    console.log(typeof data);
-    if (typeof data === typeof 'string') {
-      alert(data);
+    if (errorMessage) {
+      alert(errorMessage);
       return;
     }
     this.redirectToMain();
   };
 
   render() {
-    const {handleOnChange, authorize, handleOnKeyPress} = this;
     return (
-      <div className="signin-header">
-        <p>Email</p>
-        <input type="email" id="inputEmail" className="form-control"
-               placeholder="Enter e-mail" name="email"
-               onChange={handleOnChange} onKeyPress={handleOnKeyPress}/>
-        <p>Name</p>
-        <input type="name" id="inputName" className="form-control"
-               placeholder="Enter name" name="name" onChange={handleOnChange}
-               onKeyPress={handleOnKeyPress}/>
-        <p>Password</p>
-        <input type="password" id="inputPassword" className="form-control"
-               placeholder="Enter password" name="password"
-               onChange={handleOnChange} onKeyPress={handleOnKeyPress}/>
-        <p>Confirm password</p>
-        <input type="password" id="inputConfirmedPassword"
-               className="form-control" placeholder="Re-enter password"
-               name="confirmedPassword" onChange={handleOnChange}
-               onKeyPress={handleOnKeyPress}/>
-        <br></br>
-        <Button type="submit" onClick={authorize}
-                id="submitButton">Sign up</Button>
+      <div className="signup-div">
+        <form onSubmit={this.handleSubmit}>
+          <p>Email</p>
+          <input type="email" id="inputEmail" className="form-control"
+                 placeholder="Enter e-mail" name="email"
+                 onChange={this.handleOnChange}/>
+          <p>Name</p>
+          <input type="name" id="inputName" className="form-control"
+                 placeholder="Enter name" name="name" onChange={this.handleOnChange}/>
+          <p>Password</p>
+          <input type="password" id="inputPassword" className="form-control"
+                 placeholder="Enter password" name="password"
+                 onChange={this.handleOnChange}/>
+          <p>Confirm password</p>
+          <input type="password" id="inputConfirmedPassword"
+                 className="form-control" placeholder="confirm password"
+                 name="confirmedPassword" onChange={this.handleOnChange}/>
+          <br></br>
+          <Button type="submit" onClick={this.handleSubmit}
+                  id="submitButton">Sign up</Button>
+        </form>
       </div>
     );
   }

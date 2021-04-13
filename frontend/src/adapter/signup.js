@@ -15,13 +15,8 @@ async function signUp(email, name, password) {
       },
     });
   } catch (error) {
-    if (error.response.status === 409) {
-      console.error(error.response);
-      return 'Email already exists';
-    }
-    if (error.response.status === 422) {
-      console.error(error.response);
-      return 'Invalid input';
+    if (error.response) {
+      return error.response.data.message;
     }
     if (error.request) {
       console.error(error.request);
@@ -30,7 +25,7 @@ async function signUp(email, name, password) {
     console.error(error);
     return 'Unexpected error occurred. try it again';
   }
-  return response;
+  return undefined;
 }
 
 export default signUp;

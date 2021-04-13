@@ -75,7 +75,7 @@ class SignIn extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="signin-div">
         <form onSubmit={this.handleSubmit}>
           <p>Email</p>
           <input type="email" id="inputEmail" className="form-control"
@@ -89,7 +89,8 @@ class SignIn extends React.Component {
           <Button type="submit" onClick={this.handleSubmit}
                   id="submitButton">Sign-In</Button>
         </form>
-      </div>);
+      </div>
+    );
   }
 }
 

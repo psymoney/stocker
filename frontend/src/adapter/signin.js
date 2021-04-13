@@ -14,9 +14,9 @@ async function signIn(email, password) {
       });
   } catch (error) {
     if (error.response) {
-        return [undefined, error.response.data.message];
-      }
+      return [undefined, error.response.data.message];
     }
+
     if (error.request) {
       console.error(error.request);
       return [undefined, 'there is no response. try it again.'];
