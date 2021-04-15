@@ -1,16 +1,17 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import validator from 'email-validator';
-import signIn from '../adapter/signin';
+import signUp from '../adapter/signup';
 
 
-class SignIn extends React.Component {
+class SignUp extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      accessToken: '',
       email: '',
+      name: '',
       password: '',
+      confirmedPassword: '',
     };
   }
 
@@ -35,21 +36,27 @@ class SignIn extends React.Component {
       alert('Enter password');
       return false;
     }
+    if (this.state.password !== this.state.confirmedPassword) {
+      alert('Passwords do not match');
+      return false;
+    }
     if (this.state.password.length < 8) {
-      alert('Wrong password');
+      alert('Password must be at least 8 characters');
+      return false;
+    }
+    return true;
+  };
+
+  isValidName = () => {
+    if (this.state.name === '') {
+      alert('Enter name');
       return false;
     }
     return true;
   };
 
   redirectToMain = () => {
-    this.props.history.push({
-      pathname: '/main',
-      state: {
-        email: this.state.email,
-        accessToken: this.state.accessToken,
-      },
-    });
+    this.props.history.push('/main');
   };
 
   handleOnChange = (event) => {
@@ -60,38 +67,45 @@ class SignIn extends React.Component {
 
   handleSubmit = async (event) => {
     event.preventDefault();
-    if (!(this.isValidEmail() && this.isValidPassword())) {
+    if (!(this.isValidEmail() && this.isValidPassword() &&
+      this.isValidName())) {
       return;
     }
-    let [accessToken, errorMessage] = await signIn(this.state.email,
+    let errorMessage = await signUp(this.state.email, this.state.name,
       this.state.password);
     if (errorMessage) {
       alert(errorMessage);
       return;
     }
-    this.setState({accessToken});
     this.redirectToMain();
   };
 
   render() {
     return (
-      <div className="signin-div">
+      <div className="signup-div">
         <form onSubmit={this.handleSubmit}>
           <p>Email</p>
           <input type="email" id="inputEmail" className="form-control"
                  placeholder="Enter e-mail" name="email"
                  onChange={this.handleOnChange}/>
+          <p>Name</p>
+          <input type="name" id="inputName" className="form-control"
+                 placeholder="Enter name" name="name" onChange={this.handleOnChange}/>
           <p>Password</p>
           <input type="password" id="inputPassword" className="form-control"
                  placeholder="Enter password" name="password"
                  onChange={this.handleOnChange}/>
+          <p>Confirm password</p>
+          <input type="password" id="inputConfirmedPassword"
+                 className="form-control" placeholder="confirm password"
+                 name="confirmedPassword" onChange={this.handleOnChange}/>
           <br></br>
           <Button type="submit" onClick={this.handleSubmit}
-                  id="submitButton">Sign-In</Button>
+                  id="submitButton">Sign up</Button>
         </form>
       </div>
     );
   }
 }
 
-export default SignIn;
+export default SignUp;
