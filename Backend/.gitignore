@@ -151,4 +151,7 @@ dmypy.json
 # profiling data
 .prof
 
+# credential data
+config/properties.json
+
 # End of https://www.toptal.com/developers/gitignore/api/django
